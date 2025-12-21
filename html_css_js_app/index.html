@@ -1,0 +1,135 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GhostChar Text Debugger</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body class="app-shell">
+  <div class="app">
+    <header class="app-header">
+      <div class="logo-group">
+        <div class="logo-mark">
+          <svg class="logo-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="logo-title">
+            GHOST<span class="logo-accent">CHAR</span>
+          </h1>
+          <p class="logo-subtitle">Text encoding debugger</p>
+        </div>
+      </div>
+
+      <div class="status-bar">
+        <div class="status-pill">
+          <div id="statusDot" class="status-dot status-dot-clean"></div>
+          <span id="statusText" class="status-label">TEXT IS CLEAN</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="app-main">
+      <section class="editor-section">
+        <div class="section-head">
+          <h2 class="section-title">Text Input</h2>
+          <button id="clearEditor" class="link-button">Clear Editor</button>
+        </div>
+        <div class="editor-wrap">
+          <div class="editor-surface">
+            <div 
+              id="highlightLayer"
+              class="highlight-layer mirror-text"
+              aria-hidden="true"
+            ></div>
+            
+            <textarea
+              id="codeInput"
+              spellcheck="false"
+              class="code-input mirror-text custom-caret custom-scrollbar"
+              placeholder="Paste your text here to scan for non-standard characters..."
+            ></textarea>
+          </div>
+        </div>
+      </section>
+
+      <aside class="control-panel">
+        <div>
+          <h2 class="panel-title">
+            <svg class="panel-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+            </svg>
+            Settings
+          </h2>
+          
+          <div class="mode-block">
+            <label class="mode-label">Detection Mode</label>
+            <div class="mode-buttons">
+              <button data-mode="STRICT_ASCII" class="mode-button">Strict ASCII</button>
+              <button data-mode="EXTENDED_ASCII" class="mode-button">Ext. ASCII</button>
+            </div>
+            <p id="modeDescription" class="mode-caption">
+              Highlights characters > 127 and hidden control codes.
+            </p>
+          </div>
+        </div>
+
+        <div class="findings">
+          <h2 class="panel-title">
+            <svg class="panel-icon warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            Findings
+          </h2>
+
+          <div id="cleanState" class="findings-clean">
+            <p class="clean-title">✨ Your text is clean!</p>
+            <p class="clean-caption">All characters are within standard range.</p>
+          </div>
+
+          <div id="findingsContent" class="findings-content hidden">
+            <div class="stat-grid">
+              <div class="stat-card">
+                <p class="stat-label">Total Issues</p>
+                <p id="totalIssues" class="stat-value warning">0</p>
+              </div>
+              <div class="stat-card">
+                <p class="stat-label">Unique Types</p>
+                <p id="uniqueTypes" class="stat-value accent">0</p>
+              </div>
+            </div>
+
+            <p class="breakdown-title">Detailed Breakdown</p>
+            
+            <div id="breakdownList" class="breakdown-list custom-scrollbar"></div>
+
+            <div class="autofix-block">
+              <button id="autoFixBtn" class="primary-button">
+                <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                Auto-Fix Characters
+              </button>
+              <p class="autofix-note">
+                Fix will replace common problematic characters (like smart quotes) with standard ASCII equivalents.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-note">
+          <p>GhostChar Debugger v1.1</p>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
