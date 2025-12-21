@@ -1,0 +1,6 @@
+
+{
+  "name": "GhostChar Text Editor",
+  "description": "A minimal text editor that identifies and highlights non-ASCII or non-extended ASCII characters to help users find hidden formatting, smart quotes, and encoding issues in any type of text.",
+  "requestFramePermissions": []
+}
