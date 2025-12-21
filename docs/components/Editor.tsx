@@ -38,19 +38,30 @@ const Editor: React.FC<EditorProps> = ({ value, onChange, checkMode, onGhostChar
   const processContent = useCallback(() => {
     const chars: GhostCharacter[] = [];
     const limit = checkMode === CheckMode.STRICT_ASCII ? 127 : 255;
-    
+    // What we COUNT as an "issue" depends on the selected detection mode.
+    // What we HIGHLIGHT in the editor should always include *all* non-ASCII
+    // characters (code points > 0x7F), so users can see them even in Ext. ASCII.
+    const detectionLimit = checkMode === CheckMode.STRICT_ASCII ? 0x7F : 0xFF;
+    const asciiLimit = 0x7F;
+
     let html = '';
     let idx = 0;
-    
+
     // Using for...of ensures we process full Unicode characters (surrogate pairs)
     for (const char of value) {
       const code = char.codePointAt(0)!;
-      
+
       const isHiddenControl = (code < 32 && code !== 9 && code !== 10 && code !== 13) || code === 127;
-      const isOutsideRange = code > limit;
+      const isNonAscii = code > asciiLimit;
+      const isOutsideDetectionRange = code > detectionLimit;
       const isZeroWidth = code === 8203;
 
-      if (isOutsideRange || isHiddenControl) {
+      // Always highlight non-ASCII + hidden control characters.
+      const shouldHighlight = isNonAscii || isHiddenControl;
+      // Only count as a finding when outside the active detection mode's range.
+      const shouldReport = isOutsideDetectionRange || isHiddenControl;
+
+      if (shouldReport) {
         chars.push({
           char,
           code,
@@ -58,16 +69,24 @@ const Editor: React.FC<EditorProps> = ({ value, onChange, checkMode, onGhostChar
           index: idx,
           name: getCharName(code)
         });
-        
+      }
+
+      if (shouldHighlight) {
         const name = getCharName(code);
         const hexStr = code.toString(16).toUpperCase();
         const tooltip = `${name} (U+${hexStr})`;
-        const bgColor = isHiddenControl ? 'bg-amber-500/40 border-amber-500' : 'bg-red-500/40 border-red-500';
-        
+
+        // amber: hidden controls, red: outside mode range, indigo: non-ASCII but allowed by Ext. ASCII
+        const markerClass = isHiddenControl
+          ? 'bg-amber-500/40 border-amber-500'
+          : isOutsideDetectionRange
+            ? 'bg-red-500/40 border-red-500'
+            : 'bg-indigo-500/25 border-indigo-500/60';
+
         if (isZeroWidth) {
           html += `<span class="ghost-marker-zero" title="${tooltip}"></span>`;
         } else {
-          html += `<span class="ghost-marker ${bgColor}" title="${tooltip}">${escapeHtml(char)}</span>`;
+          html += `<span class="ghost-marker ${markerClass}" title="${tooltip}">${escapeHtml(char)}</span>`;
         }
       } else {
         if (char === '\n') {
@@ -103,10 +122,10 @@ const Editor: React.FC<EditorProps> = ({ value, onChange, checkMode, onGhostChar
 
   return (
     <div className="relative w-full h-full bg-slate-950 rounded-xl border border-slate-800 overflow-hidden shadow-2xl">
-      <div 
+      <div
         ref={backdropRef}
         className="absolute inset-0 p-6 pointer-events-none whitespace-pre-wrap break-words overflow-y-scroll text-transparent z-0 select-none hide-scrollbar"
-        style={{ 
+        style={{
           fontVariantLigatures: 'none',
           wordWrap: 'break-word',
           whiteSpace: 'pre-wrap',
@@ -116,7 +135,7 @@ const Editor: React.FC<EditorProps> = ({ value, onChange, checkMode, onGhostChar
         dangerouslySetInnerHTML={{ __html: highlightedHtml + (value.endsWith('\n') ? '\n' : '') }}
         aria-hidden="true"
       />
-      
+
       <textarea
         ref={textareaRef}
         value={value}
@@ -124,7 +143,7 @@ const Editor: React.FC<EditorProps> = ({ value, onChange, checkMode, onGhostChar
         onScroll={handleScroll}
         spellCheck={false}
         className="absolute inset-0 w-full h-full p-6 bg-transparent text-slate-300 resize-none outline-none z-10 whitespace-pre-wrap break-words overflow-y-scroll custom-caret appearance-none m-0 border-none"
-        style={{ 
+        style={{
           fontVariantLigatures: 'none',
           wordWrap: 'break-word',
           whiteSpace: 'pre-wrap',
@@ -150,7 +169,8 @@ const Editor: React.FC<EditorProps> = ({ value, onChange, checkMode, onGhostChar
         }
 
         .ghost-marker {
-          border-bottom: 2px solid currentColor;
+          border-bottom-width: 2px;
+          border-bottom-style: solid;
           border-radius: 1px;
           display: inline;
         }
