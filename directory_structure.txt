@@ -1,0 +1,26 @@
+.
+├── directory_structure.txt
+├── docs
+│   ├── App.tsx
+│   ├── components
+│   │   ├── ControlPanel.tsx
+│   │   └── Editor.tsx
+│   ├── index.html
+│   ├── index.tsx
+│   ├── metadata.json
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── README.md
+│   ├── tsconfig.json
+│   ├── types.ts
+│   ├── utils
+│   │   └── tests.ts
+│   └── vite.config.ts
+├── html_css_js_app
+│   ├── app.js
+│   ├── index.html
+│   └── styles.css
+├── LICENSE
+└── README.md
+
+5 directories, 19 files
