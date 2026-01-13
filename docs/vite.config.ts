@@ -4,8 +4,9 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
+    const repoName = process.env.GITHUB_REPOSITORY?.split("/")[1] ?? "";
     return {
-      base: '/GhostChar/',
+      base: repoName ? `/${repoName}/` : "/",
       server: {
         port: 3000,
         host: '0.0.0.0',
